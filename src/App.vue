@@ -42,8 +42,8 @@ export default {
       const objLoader = new OBJLoader();
 
       // Caminho para os arquivos MTL e OBJ
-      const mtlPath = 'src/assets/Table_And_Chairs.mtl';  // Ajuste o caminho
-      const objPath = 'src/assets/Table_And_Chairs.obj';  // Ajuste o caminho
+      const mtlPath = 'models/Table_And_Chairs.mtl';  // Ajuste o caminho
+      const objPath = 'models/Table_And_Chairs.obj';  // Ajuste o caminho
 
       mtlLoader.load(mtlPath, function (materials) {
         materials.preload(); // Precarregar materiais
