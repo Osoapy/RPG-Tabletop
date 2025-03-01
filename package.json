@@ -11,6 +11,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "sweetalert2": "^11.17.2",
     "three": "^0.174.0",
     "vue": "^3.5.13"
   },
