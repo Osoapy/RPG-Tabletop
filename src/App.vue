@@ -22,48 +22,53 @@ export default {
     let previousMousePosition = { x: 0, y: 0 };
 
     onMounted(() => {
-      // Cena
+      // Scene
       scene = new THREE.Scene();
 
-      // Câmera (estática, olhando sempre para a mesma direção)
+      // Camera (static, always looking in the same direction)
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 5, 15); // posição inicial
+      camera.position.set(0, 5, 61); // initial position
 
-      // Renderizador
-      renderer = new THREE.WebGLRenderer();
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true; // Enable shadow maps
+      renderer.outputEncoding = THREE.sRGBEncoding; // Ensure the renderer outputs in sRGB color space
       container.value.appendChild(renderer.domElement);
 
-      // Luz ambiente
+      // Ambient light
       const ambientLight = new THREE.AmbientLight(0x404040);
       scene.add(ambientLight);
 
-      // Luz direcional
+      // Directional light
       const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
       directionalLight.position.set(5, 5, 5).normalize();
+      directionalLight.castShadow = true; // Enable shadows for the light
       scene.add(directionalLight);
 
-      // Carregar textura da lousa
+      // Load map texture
       const textureLoader = new THREE.TextureLoader();
       const texture = textureLoader.load('assets/map.webp');
+      texture.colorSpace = THREE.SRGBColorSpace; // Set the color space to sRGB
 
-      // Criar material com a textura
+      // Create material with the texture
       const material = new THREE.MeshBasicMaterial({ map: texture });
 
-      // Criar geometria da lousa (um plano fino)
+      // Create map geometry (a thin plane)
       const geometry = new THREE.BoxGeometry(100, 50, 0.2);
-      const lousa = new THREE.Mesh(geometry, material);
-      lousa.position.set(0, 5, 0);
-      scene.add(lousa);
+      const map = new THREE.Mesh(geometry, material);
+      map.position.set(0, 5, 0);
+      map.receiveShadow = true; // Map receives shadows
+      scene.add(map);
 
-      // Controle de zoom
+      // Zoom control
       window.addEventListener('wheel', (event) => {
         const zoomSpeed = 0.1;
         camera.position.z += event.deltaY * zoomSpeed;
         camera.position.z = Math.max(10, Math.min(150, camera.position.z));
       });
 
-      // Função de animação
+      // Animation function
       function animate() {
         renderer.render(scene, camera);
         requestAnimationFrame(animate);
@@ -91,10 +96,12 @@ export default {
           reader.onload = (e) => {
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load(e.target.result, (texture) => {
+              texture.colorSpace = THREE.SRGBColorSpace; // Set the color space to sRGB
               const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
               const geometry = new THREE.PlaneGeometry(3, 3);
               const imagePlane = new THREE.Mesh(geometry, material);
-              imagePlane.position.set(0, 2, 2);
+              imagePlane.position.set(0, 5, 0.1); // Set z position to 0.1 to make it appear on the map
+              
               scene.add(imagePlane);
 
               objects.push(imagePlane);
@@ -131,18 +138,18 @@ export default {
           const deltaX = (event.clientX - previousMousePosition.x) * 0.03;
           const deltaY = (event.clientY - previousMousePosition.y) * 0.03;
 
-          // Mover a imagem na tela
+          // Move the image on the screen
           draggedObject.position.x += deltaX;
           draggedObject.position.y -= deltaY;
 
           previousMousePosition = { x: event.clientX, y: event.clientY };
         } else if (isDraggingCamera) {
-          // Mover a câmera horizontalmente (eixo X) e verticalmente (eixo Y)
+          // Move the camera horizontally (X axis) and vertically (Y axis)
           const deltaX = (event.clientX - previousMousePosition.x) * 0.1;
           const deltaY = (event.clientY - previousMousePosition.y) * 0.1;
 
-          camera.position.x += deltaX;
-          camera.position.y -= deltaY;  // Inverte a direção para o movimento para cima
+          camera.position.x -= deltaX;
+          camera.position.y += deltaY; 
 
           previousMousePosition = { x: event.clientX, y: event.clientY };
         }
